@@ -1,10 +1,9 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
-import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
-import "@openzeppelin/contracts/access/Ownable.sol";
+import "./ERC721Ownable.sol";
 
-contract NFTFactory is Ownable {
+contract NFTFactory {
     // 保存所有已经创建的NFT合约地址
     address[] public nftContracts;
 
@@ -12,11 +11,12 @@ contract NFTFactory is Ownable {
     event NFTContractCreated(address indexed nftContract, address indexed owner);
 
     // 创建一个新的NFT合约
-    function createNFTContract(string memory name, string memory symbol) external onlyOwner {
-        ERC721 nftContract = new ERC721(name, symbol);
-        nftContracts.push(address(nftContract));
+    function createNFTContract(string memory name, string memory symbol) external {
+        ERC721Ownable nft = new ERC721Ownable(name, symbol);
+        nftContracts.push(address(nft));
+        nft.transferOwnership(msg.sender);
 
-        emit NFTContractCreated(address(nftContract), owner());
+        emit NFTContractCreated(address(nft), msg.sender);
     }
 
     // 获取已创建的NFT合约数量
