@@ -42,8 +42,11 @@ contract Candy721Ownable is ERC721, Ownable {
         }
 
         uint256 tokenId = tokenCount++;
+        require(maxSupply == 0 || tokenId <= maxSupply, "Over MAX supply");
+
         // _mint requires to != address(0)
         _mint(to, tokenId);
+
         tokenImage[tokenId] = image;
         tokenSignature[tokenId] = signature;
         signatureOwner[signature] = to;
