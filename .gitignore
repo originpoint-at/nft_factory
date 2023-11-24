@@ -76,3 +76,7 @@ ehthumbs.db
 Desktop.ini
 $RECYCLE.BIN/
 
+# Ignore hardhat output directories
+artifacts/
+cache/
+typechain-types/
