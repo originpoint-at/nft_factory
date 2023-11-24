@@ -67,6 +67,7 @@ contract Candy721Ownable is ERC721, Ownable {
         return constructJsonURI(tokenId);
     }
 
+    // TODO description is set as the same for all tokens, or different for every single?
     // https://docs.opensea.io/docs/metadata-standards
     function constructJsonURI(uint256 tokenId) internal view returns (string memory) {
         return string(
@@ -75,7 +76,9 @@ contract Candy721Ownable is ERC721, Ownable {
                 Base64.encode(
                     abi.encodePacked(
                         "{",
-                        '"name":"CandySea NFT",',
+                        '"name":"',
+                        name(),
+                        '",',
                         '"description":"CandySea is great.",',
                         '"image":"',
                         tokenImage[tokenId],
