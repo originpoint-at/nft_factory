@@ -12,8 +12,10 @@ contract Candy721Factory {
     event ContractCreated(address indexed nftContract, address indexed owner);
 
     // 创建一个新的NFT合约
-    function createContract(string memory name, string memory symbol) external {
-        Candy721Ownable nft = new Candy721Ownable(name, symbol);
+    function createContract(string memory name, string memory symbol, uint256 max_supply, uint256 single_price)
+        external
+    {
+        Candy721Ownable nft = new Candy721Ownable(max_supply, single_price, name, symbol);
         contracts.push(address(nft));
         creators.push(msg.sender);
         nft.transferOwnership(msg.sender);
