@@ -80,3 +80,4 @@ $RECYCLE.BIN/
 artifacts/
 cache/
 typechain-types/
+single.*.sol
