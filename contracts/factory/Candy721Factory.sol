@@ -9,7 +9,14 @@ contract Candy721Factory {
     address[] public creators;
 
     // 事件，用于通知新合约的创建
-    event ContractCreated(address indexed nftContract, address indexed owner);
+    event ContractCreated(
+        address indexed nftContract,
+        address indexed owner,
+        string name,
+        string symbol,
+        uint256 max_supply,
+        uint256 single_price
+    );
 
     // 创建一个新的NFT合约
     function createContract(string memory name, string memory symbol, uint256 max_supply, uint256 single_price)
@@ -20,7 +27,7 @@ contract Candy721Factory {
         creators.push(msg.sender);
         nft.transferOwnership(msg.sender);
 
-        emit ContractCreated(address(nft), msg.sender);
+        emit ContractCreated(address(nft), msg.sender, name, symbol, max_supply, single_price);
     }
 
     // 获取已创建的NFT合约数量
