@@ -1,11 +1,11 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
-import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/utils/Base64.sol";
+import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Enumerable.sol";
 
-contract Candy721Ownable is ERC721, Ownable {
+contract Candy721Ownable is ERC721Enumerable, Ownable {
     //    struct Trait {
     //        string display_type;
     //        string trait_type;
@@ -22,8 +22,6 @@ contract Candy721Ownable is ERC721, Ownable {
     uint256 public maxSupply;
 
     uint256 public singlePrice;
-
-    uint256 public tokenCount;
 
     mapping(uint256 => string) public tokenImage;
 
@@ -62,7 +60,7 @@ contract Candy721Ownable is ERC721, Ownable {
         (success,) = payable(factory).call{value: 0.1 ether}("");
         require(success, "Unable to send value");
 
-        uint256 tokenId = tokenCount++;
+        uint256 tokenId = totalSupply() + 1;
         require(stop == 0 || tokenId <= stop, "Stopped");
         require(maxSupply == 0 || tokenId <= maxSupply, "Over MAX");
 

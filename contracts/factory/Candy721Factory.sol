@@ -1,9 +1,10 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
+import "@openzeppelin/contracts/access/Ownable.sol";
 import "./Candy721Ownable.sol";
 
-contract Candy721Factory {
+contract Candy721Factory is Ownable {
     // 保存所有已经创建的NFT合约地址
     address[] public contracts;
     address[] public creators;
@@ -37,5 +38,12 @@ contract Candy721Factory {
     // 获取已创建的NFT合约数量
     function contractAmount() external view returns (uint256) {
         return contracts.length;
+    }
+
+    function withdraw(address recipient, uint256 amount) external onlyOwner {
+        require(recipient != address(0), "Zero address");
+        require(address(this).balance >= amount, "Insufficient balance");
+        (bool success,) = payable(recipient).call{value: amount}("");
+        require(success, "Unable to send value");
     }
 }
