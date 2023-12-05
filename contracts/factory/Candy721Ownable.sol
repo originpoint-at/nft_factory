@@ -50,7 +50,7 @@ contract Candy721Ownable is ERC721Enumerable, Ownable {
         payable
     {
         bool success;
-        // it requires msg.value >= singlePrice
+        // it requires msg.value >= singlePrice + 0.1 ether
         uint256 diff = msg.value - (singlePrice + 0.1 ether);
         if (diff > 0) {
             (success,) = payable(msg.sender).call{value: diff}("");
