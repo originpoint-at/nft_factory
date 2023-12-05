@@ -15,6 +15,8 @@ contract Candy721Ownable is ERC721, Ownable {
 
     string public description;
 
+    uint256 public stop;
+
     address public factory;
 
     uint256 public maxSupply;
@@ -61,7 +63,8 @@ contract Candy721Ownable is ERC721, Ownable {
         require(success, "Unable to send value");
 
         uint256 tokenId = tokenCount++;
-        require(maxSupply == 0 || tokenId <= maxSupply, "Over MAX supply");
+        require(stop == 0 || tokenId <= stop, "Stopped");
+        require(maxSupply == 0 || tokenId <= maxSupply, "Over MAX");
 
         // it requires to != address(0)
         _mint(to, tokenId);
@@ -103,5 +106,10 @@ contract Candy721Ownable is ERC721, Ownable {
                 )
             )
         );
+    }
+
+    function start(uint256 _stop) external onlyOwner {
+        require(_stop > totalSupply() && _stop <= maxSupply, "Range error");
+        stop = _stop;
     }
 }
