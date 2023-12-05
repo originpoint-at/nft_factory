@@ -13,6 +13,10 @@ contract Candy721Ownable is ERC721, Ownable {
     //    }
     //    tokenTrait[tokenId] = Trait(display_type, trait_type, trait_value);
 
+    string public description;
+
+    address public factory;
+
     uint256 public maxSupply;
 
     uint256 public singlePrice;
@@ -27,30 +31,17 @@ contract Candy721Ownable is ERC721, Ownable {
 
     mapping(string => address) public signatureOwner;
 
-    constructor(uint256 max_supply, uint256 single_price, string memory name_, string memory symbol_)
-        ERC721(name_, symbol_)
-    {
+    constructor(
+        uint256 max_supply,
+        uint256 single_price,
+        string memory name_,
+        string memory symbol_,
+        string memory description_
+    ) ERC721(name_, symbol_) {
+        description = description_;
+        factory = msg.sender;
         maxSupply = max_supply;
         singlePrice = single_price;
-    }
-
-    function mint(address to, string calldata signature, string calldata image) public payable returns (uint256) {
-        uint256 diff = msg.value - singlePrice; // require(msg.value >= singlePrice, "Value is not enough");
-        if (diff > 0) {
-            (bool success,) = payable(msg.sender).call{value: diff}("");
-            require(success, "Unable to send value");
-        }
-
-        uint256 tokenId = tokenCount++;
-        require(maxSupply == 0 || tokenId <= maxSupply, "Over MAX supply");
-
-        // _mint requires to != address(0)
-        _mint(to, tokenId);
-
-        tokenImage[tokenId] = image;
-        tokenSignature[tokenId] = signature;
-        signatureOwner[signature] = to;
-        return tokenId;
     }
 
     // traits = "[ {display_type, trait_type, value}, {display_type, trait_type, value}, ... ]"
@@ -58,7 +49,27 @@ contract Candy721Ownable is ERC721, Ownable {
         public
         payable
     {
-        uint256 tokenId = mint(to, signature, image);
+        bool success;
+        // it requires msg.value >= singlePrice
+        uint256 diff = msg.value - (singlePrice + 0.1 ether);
+        if (diff > 0) {
+            (success,) = payable(msg.sender).call{value: diff}("");
+            require(success, "Unable to send value");
+        }
+
+        (success,) = payable(factory).call{value: 0.1 ether}("");
+        require(success, "Unable to send value");
+
+        uint256 tokenId = tokenCount++;
+        require(maxSupply == 0 || tokenId <= maxSupply, "Over MAX supply");
+
+        // it requires to != address(0)
+        _mint(to, tokenId);
+
+        tokenImage[tokenId] = image;
+        tokenSignature[tokenId] = signature;
+        signatureOwner[signature] = to;
+
         tokenTrait[tokenId] = traits;
     }
 
@@ -67,9 +78,8 @@ contract Candy721Ownable is ERC721, Ownable {
         return constructJsonURI(tokenId);
     }
 
-    // TODO description is set as the same for all tokens, or different for every single?
     // https://docs.opensea.io/docs/metadata-standards
-    function constructJsonURI(uint256 tokenId) internal view returns (string memory) {
+    function constructJsonURI(uint256 tokenId) public view returns (string memory) {
         return string(
             abi.encodePacked(
                 "data:application/json;base64,",
@@ -79,7 +89,9 @@ contract Candy721Ownable is ERC721, Ownable {
                         '"name":"',
                         name(),
                         '",',
-                        '"description":"CandySea is great.",',
+                        '"description":"',
+                        description,
+                        '",',
                         '"image":"',
                         tokenImage[tokenId],
                         '",',
