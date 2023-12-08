@@ -19,6 +19,10 @@ contract Candy721Factory is Ownable {
         uint256 single_price
     );
 
+    receive() external payable {
+
+    }
+
     // 创建一个新的NFT合约
     function createContract(
         string memory name,

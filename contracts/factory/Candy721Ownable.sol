@@ -96,9 +96,8 @@ contract Candy721Ownable is ERC721Enumerable, Ownable {
                         '"image":"',
                         tokenImage[tokenId],
                         '",',
-                        '"attributes":"',
+                        '"attributes":',
                         tokenTrait[tokenId],
-                        '",',
                         "}"
                     )
                 )
