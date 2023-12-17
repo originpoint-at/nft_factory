@@ -8,6 +8,7 @@ contract Candy721Factory is Ownable {
     // 保存所有已经创建的NFT合约地址
     address[] public contracts;
     address[] public creators;
+    uint256 public fee = 0.1 ether; // 0.1 matic
 
     // 事件，用于通知新合约的创建
     event ContractCreated(
@@ -49,5 +50,9 @@ contract Candy721Factory is Ownable {
         require(address(this).balance >= amount, "Insufficient balance");
         (bool success,) = payable(recipient).call{value: amount}("");
         require(success, "Unable to send value");
+    }
+
+    function setMintFee(uint256 _fee) external onlyOwner {
+        fee = _fee;
     }
 }

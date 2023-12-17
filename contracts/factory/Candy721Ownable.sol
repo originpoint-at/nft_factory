@@ -5,6 +5,10 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/utils/Base64.sol";
 import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Enumerable.sol";
 
+interface IMintFee {
+    function fee() external view returns (uint256);
+}
+
 contract Candy721Ownable is ERC721Enumerable, Ownable {
     //    struct Trait {
     //        string display_type;
@@ -50,14 +54,15 @@ contract Candy721Ownable is ERC721Enumerable, Ownable {
         payable
     {
         bool success;
+        uint256 mint_fee = IMintFee(factory).fee();
         // it requires msg.value >= singlePrice + 0.1 ether
-        uint256 diff = msg.value - (singlePrice + 0.1 ether);
+        uint256 diff = msg.value - (singlePrice + mint_fee);
         if (diff > 0) {
             (success,) = payable(msg.sender).call{value: diff}("");
             require(success, "Unable to send value");
         }
 
-        (success,) = payable(factory).call{value: 0.1 ether}("");
+        (success,) = payable(factory).call{value: mint_fee}("");
         require(success, "Unable to send value");
 
         uint256 tokenId = totalSupply() + 1;
@@ -108,5 +113,12 @@ contract Candy721Ownable is ERC721Enumerable, Ownable {
     function start(uint256 _stop) external onlyOwner {
         require(_stop > totalSupply() && _stop <= maxSupply, "Range error");
         stop = _stop;
+    }
+
+    function withdraw(address recipient, uint256 amount) external onlyOwner {
+        require(recipient != address(0), "Zero address");
+        require(address(this).balance >= amount, "Insufficient balance");
+        (bool success,) = payable(recipient).call{value: amount}("");
+        require(success, "Unable to send value");
     }
 }
