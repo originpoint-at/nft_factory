@@ -1,0 +1,47 @@
+name: release
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: pnpm/action-setup@v2
+        with:
+          version: 8
+      - run: pnpm install
+      - run: pnpm run compile
+      - name: get-npm-version
+        id: package-version
+        uses: martinbeentjes/npm-get-version-action@v1.3.1
+      - name: prepare artifacts
+        run: |
+          mkdir ./tmp
+          cp ./{artifacts/contracts/factory/Candy721Factory.sol,./tmp}/Candy721Factory.json
+          cp ./{artifacts/contracts/factory/Candy721OwnableCustom.sol,./tmp}/Candy721OwnableCustom.json
+          cp ./{artifacts/contracts/factory/Candy721OwnableSynthetic.sol,./tmp}/Candy721OwnableSynthetic.json
+      - name: create-json
+        id: create-json
+        uses: jsdaniell/create-json@v1.2.2
+        with:
+          name: "package.json"
+          json: |
+            {
+              "name": "@originpoint-at/nft_factory",
+              "type": "module",
+              "version": "${{ steps.package-version.outputs.current-version}}-${{ github.sha }}"
+            }
+          dir: 'tmp'
+      - run: ls -l ./tmp
+      - name: Set publishing config
+        run: |-
+          pnpm config set '//npm.pkg.github.com/:_authToken' "${{secrets.GH_TOKEN}}"
+          pnpm config set '@originpoint-at:registry' 'https://npm.pkg.github.com'
+          pnpm config list
+      - run: pnpm publish --no-git-checks
+        working-directory: generated/es
