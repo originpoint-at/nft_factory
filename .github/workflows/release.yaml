@@ -6,8 +6,11 @@ on:
   pull_request:
     branches:
       - main
+      - wasm
 jobs:
-  build:
+  default:
+    permissions:
+      packages: write
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
@@ -22,9 +25,7 @@ jobs:
       - name: prepare artifacts
         run: |
           mkdir ./tmp
-          cp ./{artifacts/contracts/factory/Candy721Factory.sol,./tmp}/Candy721Factory.json
-          cp ./{artifacts/contracts/factory/Candy721OwnableCustom.sol,./tmp}/Candy721OwnableCustom.json
-          cp ./{artifacts/contracts/factory/Candy721OwnableSynthetic.sol,./tmp}/Candy721OwnableSynthetic.json
+          find ./artifacts/contracts -name '*.json' -not -name '*.dbg.json' -exec cp {} ./tmp \;
       - name: create-json
         id: create-json
         uses: jsdaniell/create-json@v1.2.2
@@ -40,8 +41,8 @@ jobs:
       - run: ls -l ./tmp
       - name: Set publishing config
         run: |-
-          pnpm config set '//npm.pkg.github.com/:_authToken' "${{secrets.GH_TOKEN}}"
+          pnpm config set '//npm.pkg.github.com/:_authToken' "${{ secrets.GITHUB_TOKEN }}"
           pnpm config set '@originpoint-at:registry' 'https://npm.pkg.github.com'
           pnpm config list
       - run: pnpm publish --no-git-checks
-        working-directory: generated/es
+        working-directory: tmp
