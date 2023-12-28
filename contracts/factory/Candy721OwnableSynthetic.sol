@@ -4,12 +4,9 @@ pragma solidity ^0.8.0;
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/utils/Base64.sol";
 import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Enumerable.sol";
+import "./IInterface.sol";
 
-interface IMintFee {
-    function fee() external view returns (uint256);
-}
-
-contract Candy721Ownable is ERC721Enumerable, Ownable {
+contract Candy721OwnableSynthetic is ERC721Enumerable, Ownable {
     //    struct Trait {
     //        string display_type;
     //        string trait_type;

@@ -2,7 +2,8 @@
 pragma solidity ^0.8.0;
 
 import "@openzeppelin/contracts/access/Ownable.sol";
-import "./Candy721Ownable.sol";
+import "./Candy721OwnableSynthetic.sol";
+import "./Candy721OwnableCustom.sol";
 
 contract Candy721Factory is Ownable {
     // 保存所有已经创建的NFT合约地址
@@ -20,23 +21,36 @@ contract Candy721Factory is Ownable {
         uint256 single_price
     );
 
-    receive() external payable {
-
-    }
+    receive() external payable {}
 
     // 创建一个新的NFT合约
-    function createContract(
+    function createContractForSynthetic(
         string memory name,
         string memory symbol,
         string memory description,
         uint256 max_supply,
         uint256 single_price
     ) external {
-        Candy721Ownable nft = new Candy721Ownable(max_supply, single_price, name, symbol, description);
-        contracts.push(address(nft));
-        creators.push(msg.sender);
+        Candy721OwnableSynthetic nft = new Candy721OwnableSynthetic(max_supply, single_price, name, symbol, description);
         nft.transferOwnership(msg.sender);
 
+        contracts.push(address(nft));
+        creators.push(msg.sender);
+        emit ContractCreated(address(nft), msg.sender, name, symbol, max_supply, single_price);
+    }
+
+    function createContractForCustom(
+        string memory name,
+        string memory symbol,
+        string memory description,
+        uint256 max_supply,
+        uint256 single_price
+    ) external {
+        Candy721OwnableCustom nft = new Candy721OwnableCustom(max_supply, single_price, name, symbol, description);
+        nft.transferOwnership(msg.sender);
+
+        contracts.push(address(nft));
+        creators.push(msg.sender);
         emit ContractCreated(address(nft), msg.sender, name, symbol, max_supply, single_price);
     }
 
