@@ -118,4 +118,15 @@ contract Candy721OwnableSynthetic is ERC721Enumerable, Ownable {
         (bool success,) = payable(recipient).call{value: amount}("");
         require(success, "Unable to send value");
     }
+
+    function tokenEnumeration(uint256 begin, uint256 end) public view returns (uint256 total, uint256[] memory ids) {
+        total = totalSupply();
+        if (begin <= end && end < total) {
+            uint256 length = end + 1 - begin;
+            ids = new uint256[](length);
+            for (uint256 i = begin; i <= end; i++) {
+                ids[i - begin] = tokenByIndex(i);
+            }
+        }
+    }
 }
